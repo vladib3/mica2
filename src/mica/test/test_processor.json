@@ -1,11 +1,11 @@
 {
   "alloc": {
-    /*"clean_files_on_init": true,
-    "verbose": true*/
+    "clean_files_on_init": true
+    /*"verbose": true */
   },
 
   "processor": {
-    "lcores": [0, 1, 2, 3],
+    "lcores": [0,1],
     "partition_count": 16,
 
     "total_size": 1000000,

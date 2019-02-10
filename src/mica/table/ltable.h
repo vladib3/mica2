@@ -76,6 +76,7 @@ struct BasicLosslessLTableConfig : public BasicLTableConfig {
 template <class StaticConfig = BasicLossyLTableConfig>
 class LTable : public TableInterface {
  public:
+  std::string name;	// Name of the table
   typedef typename StaticConfig::Alloc Alloc;
   typedef typename StaticConfig::Pool Pool;
 
@@ -84,9 +85,11 @@ class LTable : public TableInterface {
   static constexpr size_t kMaxValueLength = 1048575;
 
   // ltable_impl/init.h
-  LTable(const ::mica::util::Config& config, Alloc* alloc, Pool* pool);
+  LTable(const ::mica::util::Config& config,
+         /*int bkt_shm_key,*/ Alloc* alloc, Pool* pool);
   ~LTable();
 
+  void free_pool();
   void reset();
 
   // ltable_impl/del.h
@@ -234,6 +237,7 @@ class LTable : public TableInterface {
   uint32_t read_version_end(const Bucket* bucket) const;
 
   ::mica::util::Config config_;
+  int bkt_shm_key;	// User-defined SHM key used for bucket memory
   Alloc* alloc_;
   Pool* pool_;
 

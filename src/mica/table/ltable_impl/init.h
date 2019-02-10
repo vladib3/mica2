@@ -5,9 +5,11 @@
 namespace mica {
 namespace table {
 template <class StaticConfig>
-LTable<StaticConfig>::LTable(const ::mica::util::Config& config, Alloc* alloc,
-                             Pool* pool)
-    : config_(config), alloc_(alloc), pool_(pool) {
+LTable<StaticConfig>::LTable(const ::mica::util::Config& config,
+                             /*int bkt_shm_key,*/ Alloc* alloc, Pool* pool)
+    : config_(config), /*bkt_shm_key(bkt_shm_key),*/ alloc_(alloc), pool_(pool) {
+  //name = config.get("name").get_str();
+  //assert(bkt_shm_key > 0 && bkt_shm_key < 1024 * 1024);
   size_t item_count = config.get("item_count").get_uint64();
   // Compensate the load factor.
   item_count = item_count * 11 / 10;
@@ -43,6 +45,11 @@ LTable<StaticConfig>::LTable(const ::mica::util::Config& config, Alloc* alloc,
 
     // TODO: Extend num_extra_buckets_ to meet shm_size.
 
+//    buckets_ = reinterpret_cast<Bucket*>(alloc->hrd_malloc_socket(bkt_shm_key,
+//        shm_size, numa_node));
+//    assert(buckets_ != NULL);
+
+    
     size_t alloc_id = alloc_->alloc(shm_size, numa_node);
     if (alloc_id == Alloc::kInvalidId) {
       fprintf(stderr, "failed to allocate memory\n");
@@ -55,6 +62,7 @@ LTable<StaticConfig>::LTable(const ::mica::util::Config& config, Alloc* alloc,
       if (alloc_->map(alloc_id, buckets_, 0, shm_size)) break;
     }
     if (!alloc_->schedule_release(alloc_id)) assert(false);
+    
   }
   extra_buckets_ = buckets_ + num_buckets_ -
                    1;  // subtract by one to compensate 1-base indices
@@ -110,11 +118,21 @@ LTable<StaticConfig>::LTable(const ::mica::util::Config& config, Alloc* alloc,
 
 template <class StaticConfig>
 LTable<StaticConfig>::~LTable() {
+  printf("Destroying table %s\n", name.c_str());
   reset();
 
-  if (!alloc_->unmap(buckets_)) assert(false);
+ if (!alloc_->unmap(buckets_)) assert(false);
+ //if(!alloc_->hrd_free(bkt_shm_key, buckets_)) assert(false);
 
   // pool_->free();
+}
+
+// Deallocate the pool's memory directly from the table.
+// This causes double free if the pool's destructor is called later, so use
+// this only in cases where the pool's destructor won't be called.
+template <class StaticConfig>
+void LTable<StaticConfig>::free_pool() {
+  delete pool_;
 }
 
 template <class StaticConfig>

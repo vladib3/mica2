@@ -46,6 +46,7 @@ Result LTable<StaticConfig>::increment(uint64_t key_hash, const char* key,
 
   Item* item = reinterpret_cast<Item*>(pool_->get_item(item_offset));
 
+  /* Commenting this out makes increment() work for non-8-byte values.
   size_t value_length = get_value_length(item->kv_length_vec);
   if (value_length != sizeof(uint64_t)) {
     if (std::is_base_of<::mica::pool::CircularLogTag,
@@ -54,6 +55,7 @@ Result LTable<StaticConfig>::increment(uint64_t key_hash, const char* key,
     unlock_bucket(bucket);
     return Result::kError;  // invalid value size
   }
+  */
 
   uint64_t old_value;
   ::mica::util::memcpy<8>(reinterpret_cast<uint8_t*>(&old_value),

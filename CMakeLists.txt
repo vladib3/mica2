@@ -3,8 +3,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(MICA)
 
 
-SET(CMAKE_CXX_COMPILER g++-5)
-SET(CMAKE_C_LINK_EXECUTABLE g++-5)
+#SET(CMAKE_CXX_COMPILER g++-5)
+#SET(CMAKE_C_LINK_EXECUTABLE g++-5)
+SET(CMAKE_CXX_COMPILER g++)
+SET(CMAKE_C_LINK_EXECUTABLE g++)
 
 
 
@@ -92,6 +94,7 @@ IF(DPDK)
   link_directories(${LINK_DIRECTORIES} ${RTE_SDK}/build/lib)
   set(LIBRARIES ${LIBRARIES} -Wl,--whole-archive)
   set(LIBRARIES ${LIBRARIES} rte_kvargs rte_mbuf rte_ethdev rte_mempool rte_ring rte_eal)
+  set(LIBRARIES ${LIBRARIES} rte_hash rte_bus_pci rte_pci rte_bus_vdev rte_cmdline)
   set(LIBRARIES ${LIBRARIES} rte_pmd_i40e rte_pmd_ixgbe rte_pmd_ring)
   set(LIBRARIES ${LIBRARIES} -Wl,--no-whole-archive)
   set(LIBRARIES ${LIBRARIES} rt dl)
@@ -136,6 +139,9 @@ SET(LIBRARIES ${LIBRARIES} curl)
 
 IF(LTO)
 
+  ADD_EXECUTABLE(test_tcp_reassemble src/mica/test/test_tcp_reassemble.cc ${SOURCES})
+  TARGET_LINK_LIBRARIES(test_tcp_reassemble ${LIBRARIES})
+
   ADD_EXECUTABLE(test_table src/mica/test/test_table.cc ${SOURCES})
   TARGET_LINK_LIBRARIES(test_table ${LIBRARIES})
 
@@ -177,6 +183,9 @@ IF(LTO)
     ADD_EXECUTABLE(netbench src/mica/test/netbench.cc ${SOURCES})
     TARGET_LINK_LIBRARIES(netbench ${LIBRARIES})
 
+    ADD_EXECUTABLE(netbench_interval src/mica/test/netbench_interval.cc ${SOURCES})
+    TARGET_LINK_LIBRARIES(netbench_interval ${LIBRARIES})
+
     IF(SQLITE)
 
       ADD_EXECUTABLE(server_sqlite src/mica/test/server_sqlite.cc ${SOURCES})
@@ -189,6 +198,9 @@ IF(LTO)
 ELSE(LTO)
 
   ADD_LIBRARY(common ${SOURCES})
+
+  ADD_EXECUTABLE(test_tcp_reassemble src/mica/test/test_tcp_reassemble.cc)
+  TARGET_LINK_LIBRARIES(test_tcp_reassemble common ${LIBRARIES})
 
   ADD_EXECUTABLE(test_table src/mica/test/test_table.cc)
   TARGET_LINK_LIBRARIES(test_table common ${LIBRARIES})
@@ -230,6 +242,9 @@ ELSE(LTO)
 
     ADD_EXECUTABLE(netbench src/mica/test/netbench.cc)
     TARGET_LINK_LIBRARIES(netbench common ${LIBRARIES})
+
+    ADD_EXECUTABLE(netbench_interval src/mica/test/netbench_interval.cc)
+    TARGET_LINK_LIBRARIES(netbench_interval common ${LIBRARIES})
 
     IF(SQLITE)
 

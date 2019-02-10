@@ -867,9 +867,13 @@ void* HugeTLBFS_SHM::malloc_contiguous(size_t size, size_t lcore) {
   // size_t entry_id = mehcached_shm_alloc(size, numa_node);
   size_t numa_node = ::mica::util::lcore.numa_id(lcore);
   if (numa_node == ::mica::util::lcore.kUnknown) {
+    /*
     fprintf(stderr, "error: invalid lcore\n");
     return nullptr;
+    */
+    numa_node = 0;
   }
+  
 
   size_t entry_id = alloc(size, numa_node);
   // fprintf(stderr, "entry_id=%zu, size=%zu\n", entry_id, size);

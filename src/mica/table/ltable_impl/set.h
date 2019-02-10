@@ -54,7 +54,7 @@ Result LTable<StaticConfig>::set(uint64_t key_hash, const char* key,
         // no more space
         // TODO: add a statistics entry
         unlock_bucket(bucket);
-        return Result::kInsufficientSpace;
+        return Result::kInsufficientSpaceIndex;
       }
     }
 
@@ -101,7 +101,7 @@ Result LTable<StaticConfig>::set(uint64_t key_hash, const char* key,
     // no more space
     // TODO: add a statistics entry
     unlock_bucket(bucket);
-    return Result::kInsufficientSpace;
+    return Result::kInsufficientSpacePool;
   }
   uint64_t new_tail;
   if (std::is_base_of<::mica::pool::CircularLogTag, typename Pool::Tag>::value)

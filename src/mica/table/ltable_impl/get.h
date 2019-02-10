@@ -5,6 +5,17 @@
 namespace mica {
 namespace table {
 template <class StaticConfig>
+/**
+ * @param key_hash The hash of the key computed using mica::util::hash
+ * @param key Pointer to the key to get()
+ * @param key_length Length of the key to get()
+ * @param out_value Pointer to a buffer to copy the value to. The buffer should
+ * have space for at least in_value_length bytes
+ * @param in_value_length Number of bytes of the value to get(). This can be
+ * smaller than the actual value length.
+ * @param out_value_length Equal to in_value_length if the actual value is
+ * larger than in_value_length. Else set to the actual value sie.
+ */
 Result LTable<StaticConfig>::get(uint64_t key_hash, const char* key,
                                  size_t key_length, char* out_value,
                                  size_t in_value_length,

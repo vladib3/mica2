@@ -59,6 +59,9 @@
 #include <sstream>
 #include <string>
 
+// For g++ 7
+#include <functional>
+
 #ifndef ETCD_SERVER
 // Enable by default or use build flags
 #define ETCD_SERVER 1
